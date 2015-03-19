@@ -142,19 +142,52 @@ class Package
 
             $carrier_code = 'fedex';
         }
+        else if (preg_match('/(\b96\d{20}\b)|(\b\d{15}\b)|(\b\d{12}\b)/', $tracking_code, $matches)) {
+        	$this->tracking_code = $matches[2];
+        
+        	$carrier_code = 'fedex';
+        }
+        else if (preg_match('/\b((98\d\d\d\d\d?\d\d\d\d|98\d\d) ?\d\d\d\d ?\d\d\d\d( ?\d\d\d)?)\b/', $tracking_code, $matches)) {
+        	$this->tracking_code = $matches[2];
+        
+        	$carrier_code = 'fedex';
+        }
+        else if (preg_match('/^[0-9]{15}$/', $tracking_code, $matches)) {
+        	$this->tracking_code = $matches[2];
+        
+        	$carrier_code = 'fedex';
+        }
         else if (preg_match('/^1Z[A-Z0-9]{3}[A-Z0-9]{3}[0-9]{2}[0-9]{4}[0-9]{4}$/i', $tracking_code)) {
             $carrier_code = 'ups';
+        }
+        else if (preg_match('/\b(1Z ?[0-9A-Z]{3} ?[0-9A-Z]{3} ?[0-9A-Z]{2} ?[0-9A-Z]{4} ?[0-9A-Z]{3} ?[0-9A-Z]|[\dT]\d\d\d ?\d\d\d\d ?\d\d\d|\d{22})\b/i', $tracking_code)) {
+        	$carrier_code = 'ups';
+        }
+        else if (preg_match('/\b(1Z ?[0-9A-Z]{3} ?[0-9A-Z]{3} ?[0-9A-Z]{2} ?[0-9A-Z]{4} ?[0-9A-Z]{3} ?[0-9A-Z]|[\dT]\d\d\d ?\d\d\d\d ?\d\d\d)\b/', $tracking_code)) {
+        	$carrier_code = 'ups';
         }
         else if (preg_match('/^[0-9]{4}[0-9]{4}[0-9]{4}[0-9]{4}[0-9]{4}[0-9]{2}$/', $tracking_code)) {
             $carrier_code = 'usps';
         }
         elseif (preg_match('/^420[0-9]{5}([0-9]{4}[0-9]{4}[0-9]{4}[0-9]{4}[0-9]{4}[0-9]{2})$/', $tracking_code, $matches)) {
-            $this->tracking_code = $matches[1];
-
-            $carrier_code  = 'usps';
-            $provider_code = 'endicia';
+        	$this->tracking_code = $matches[1];
+        
+        	$carrier_code  = 'usps';
+        	$provider_code = 'endicia';
         }
-
+        else if (preg_match('/(\b\d{30}\b)|(\b91\d+\b)|(\b\d{20}\b)/', $tracking_code)) {
+        	$carrier_code = 'usps';
+        }
+        else if (preg_match('/^E\D{1}\d{9}\D{2}$|^9\d{15,21}$/', $tracking_code)) {
+        	$carrier_code = 'usps';
+        }
+        else if (preg_match('/^91[0-9]+$/', $tracking_code)) {
+        	$carrier_code = 'usps';
+        }
+        else if (preg_match('/^[A-Za-z]{2}[0-9]+US$/', $tracking_code)) {
+        	$carrier_code = 'usps';
+        }
+        
         if (!empty($carrier_code)) {
             $this->carrier  = new Carrier($carrier_code);
             $this->provider = new Provider($provider_code ?: $carrier_code);
